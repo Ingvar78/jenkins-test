@@ -11,8 +11,8 @@ pipeline {
         echo ' ============== docker login =================='
         withCredentials(bindings: [usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
           sh """
-                    docker login -u $USERNAME -p $PASSWORD
-                    """
+                              docker login -u $USERNAME -p $PASSWORD
+                              """
         }
 
       }
@@ -42,7 +42,7 @@ pipeline {
     IMAGE_TAG = "v$BUILD_NUMBER"
     IMAGE_NAME = "${env.IMAGE_BASE}:${env.IMAGE_TAG}"
     IMAGE_NAME_LATEST = "${env.IMAGE_BASE}:latest"
-    DOCKERFILE_NAME = 'Dockerfile-pack'
+    DOCKERFILE_NAME = 'Dockerfile-pack1'
   }
   options {
     skipStagesAfterUnstable()
