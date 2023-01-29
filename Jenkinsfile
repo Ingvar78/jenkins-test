@@ -1,16 +1,11 @@
-#!groovy
-// Run docker build
-properties([disableConcurrentBuilds()])
-
 pipeline {
-    agent { 
-        label 'built-in'
-        }
-    triggers { pollSCM('* * * * *') }
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
-        timestamps()
+  agent {
+    docker {
+      image 'nginx:stable'
     }
+
+  }
+
     stages {
         stage("import credentials") {
             steps {
@@ -38,7 +33,7 @@ pipeline {
             steps {
                 echo " ============== start building image =================="
                 dir ('.') {
-                	sh 'docker build -t runout/diploma-test-app:latest . '
+            	sh 'docker build -t runout/diploma-test-app:latest . '
                 }
             }
         }
@@ -51,4 +46,18 @@ pipeline {
             }
         }
     }
+ 
+  environment {
+    IMAGE_BASE = 'egerpro/nginx-app'
+    IMAGE_TAG = "v$BUILD_NUMBER"
+    IMAGE_NAME = "${env.IMAGE_BASE}:${env.IMAGE_TAG}"
+    IMAGE_NAME_LATEST = "${env.IMAGE_BASE}:latest"
+    DOCKERFILE_NAME = 'Dockerfile-pack'
+  }
+  options {
+    skipStagesAfterUnstable()
+    skipDefaultCheckout()
+    buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+    timestamps()
+  }
 }
