@@ -11,8 +11,8 @@ pipeline {
         echo ' ============== docker login =================='
         withCredentials(bindings: [usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
           sh """
-          docker login -u $USERNAME -p $PASSWORD
-          """
+                    docker login -u $USERNAME -p $PASSWORD
+                    """
         }
 
       }
