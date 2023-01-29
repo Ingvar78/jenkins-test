@@ -11,9 +11,6 @@ pipeline {
       when {
         branch 'main'
       }
-      environment {
-        VAZAP = 'test'
-      }
       steps {
         script {
           def dockerImage = docker.build("${env.IMAGE_NAME}", "-f ${env.DOCKERFILE_NAME} .")
@@ -21,7 +18,7 @@ pipeline {
             dockerImage.push()
             dockerImage.push("latest")
           }
-          echo "Pushed Docker Image: ${env.IMAGE_NAME}"
+
         }
 
       }
