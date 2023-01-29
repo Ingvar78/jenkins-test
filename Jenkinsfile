@@ -5,48 +5,38 @@ pipeline {
     }
 
   }
+  stages {
+    stage('docker login') {
+      steps {
+        echo ' ============== docker login =================='
+        withCredentials(bindings: [usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+          sh """
+          docker login -u $USERNAME -p $PASSWORD
+          """
+        }
 
-    stages {
-        stage("import credentials") {
-            steps {
-                echo " ============== import credentials =================="
-                sh """
-                if [ ! -s /var/jenkins/credentialImported ]; then
-                    curl http://localhost:8080/jnlpJars/jenkins-cli.jar -o jenkins-cli.jar
-                    java -jar jenkins-cli.jar -s http://localhost:8080 import-credentials-as-xml "system::system::jenkins" < /var/jenkins/exported-credentials.xml
-                    echo 'imported' > /var/jenkins/credentialImported
-                fi
-                """
-            }
-        }
-        stage("docker login") {
-            steps {
-                echo " ============== docker login =================="
-                withCredentials([usernamePassword(credentialsId: 'dockerHub', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh """
-                    docker login -u $USERNAME -p $PASSWORD
-                    """
-                }
-            }
-        }
-        stage("create docker image") {
-            steps {
-                echo " ============== start building image =================="
-                dir ('.') {
-            	sh 'docker build -t runout/diploma-test-app:latest . '
-                }
-            }
-        }
-        stage("docker push") {
-            steps {
-                echo " ============== start pushing image =================="
-                sh '''
-                docker push runout/diploma-test-app:latest
-                '''
-            }
-        }
+      }
     }
- 
+
+    stage('create docker image') {
+      steps {
+        echo ' ============== start building image =================='
+        dir(path: '.') {
+          sh 'docker build -t egerpro/nginx-app:latest .'
+        }
+
+      }
+    }
+
+    stage('docker push') {
+      steps {
+        echo ' ============== start pushing image =================='
+        sh '''docker push egerpro/nginx-app:latest
+                '''
+      }
+    }
+
+  }
   environment {
     IMAGE_BASE = 'egerpro/nginx-app'
     IMAGE_TAG = "v$BUILD_NUMBER"
